@@ -23,6 +23,8 @@
     .btn-main { background-color: #10b981; color: white; font-weight: bold; padding: 15px; border-radius: 16px; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 20px; }
     .btn-sub { background-color: #94a3b8; color: white; font-weight: bold; padding: 12px; border-radius: 16px; border: none; cursor: pointer; font-size: 16px; }
     .btn-triple-tap { background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; color: #64748b; text-align: center; }
+    .btn-action { background-color: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; }
+    .btn-action.clear { background-color: #ef4444; }
 
     /* ① ホーム画面 */
     #screen-home { align-items: center; justify-content: center; }
@@ -31,11 +33,12 @@
 
     /* ② 漢字選択画面 */
     #screen-list { max-width: 1100px; margin: 0 auto; height: 100vh; justify-content: space-between; padding-bottom: 10px; }
-    .header { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 10vh; }
-    .view-title { font-size: 24px; color: #b45309; margin: 0; text-align: center; flex-grow: 1; }
+    .header { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 12vh; gap: 10px; }
+    .view-title { font-size: 22px; color: #b45309; margin: 0; text-align: center; font-weight: bold; }
+    .header-tools { display: flex; gap: 8px; }
     
     /* スクロール枠 */
-    .kanji-scroll-box { height: 70vh; overflow-y: auto; background-color: white; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-sizing: border-box; }
+    .kanji-scroll-box { height: 68vh; overflow-y: auto; background-color: white; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-sizing: border-box; }
     
     /* ジャンルごとの見た目 */
     .genre-section { margin-bottom: 25px; }
@@ -87,7 +90,10 @@
     <div class="header">
       <button class="btn-triple-tap" onclick="handleTripleTap(this, () => changeScreen('HOME'))">🏠 もどる<br><span style="font-size:9px;color:#94a3b8;">(3かい とんとん)</span></button>
       <h2 class="view-title">れんしゅうする かんじを えらぼう</h2>
-      <div style="width: 90px;"></div>
+      <div class="header-tools">
+        <button class="btn-action" onclick="selectAllKanji()">ぜんぶえらぶ</button>
+        <button class="btn-action clear" onclick="clearAllKanji()">クリア</button>
+      </div>
     </div>
     
     <div class="kanji-scroll-box" id="kanji-selector-box"></div>
@@ -128,13 +134,12 @@
   </div>
 
   <script>
-    // ジャンル分けした1年生の漢字データ（プリントキッズ準拠）
     const KANJI_DATA = [
       // 数・曜日
       { id: '1', char: '一', reading: 'いち', genre: '数・曜日' }, { id: '2', char: '二', reading: 'に', genre: '数・曜日' },
       { id: '3', char: '三', reading: 'さん', genre: '数・曜日' }, { id: '4', char: '四', reading: 'よん', genre: '数・曜日' },
       { id: '5', char: '五', reading: 'ご', genre: '数・曜日' }, { id: '6', char: '六', reading: 'ろく', genre: '数・曜日' },
-      { id: '7', char: '七', reading: 'なな', genre: '数・曜日' }, { id: '8', char: '八', reading: 'ハ', genre: '数・曜日' },
+      { id: '7', char: '七', reading: 'なな', genre: '数・曜日' }, { id: '8', char: '八', reading: 'はち', genre: '数・曜日' },
       { id: '9', char: '九', reading: 'きゅう', genre: '数・曜日' }, { id: '10', char: '十', reading: 'じゅう', genre: '数・曜日' },
       { id: '11', char: '百', reading: 'ひゃく', genre: '数・曜日' }, { id: '12', char: '千', reading: 'せん', genre: '数・曜日' },
       { id: '13', char: '円', reading: 'えん', genre: '数・曜日' }, { id: '14', char: '日', reading: 'ひ', genre: '数・曜日' },
@@ -154,289 +159,4 @@
       // 向き
       { id: '35', char: '上', reading: 'うえ', genre: '向き' }, { id: '36', char: '下', reading: 'した', genre: '向き' },
       { id: '37', char: '左', reading: 'ひだり', genre: '向き' }, { id: '38', char: '右', reading: 'みぎ', genre: '向き' },
-      { id: '39', char: '中', reading: 'なか', genre: '向き' }, { id: '40', char: '出', reading: 'でる', genre: '向き' },
-      { id: '41', char: '入', reading: 'はいる', genre: '向き' }, { id: '42', char: '立', reading: 'たつ', genre: '向き' },
-      { id: '43', char: '先', reading: 'さき', genre: '向き' }, { id: '44', char: '早', reading: 'はやい', genre: '向き' },
-      
-      // 色
-      { id: '45', char: '赤', reading: 'あか', genre: '色' }, { id: '46', char: '白', reading: 'しろ', genre: '色' },
-      { id: '47', char: '青', reading: 'あお', genre: '色' }, { id: '48', char: '金', reading: 'かね', genre: '色' }, // 重複防止のため、金は数・曜日に配置済
-
-      // 大きさ
-      { id: '49', char: '大', reading: 'おおきい', genre: '大きさ' }, { id: '50', char: '中', reading: 'なか', genre: '大きさ' }, // 重複防止のため、中は向きに配置済
-      { id: '51', char: '小', reading: 'ちいさい', genre: '大きさ' },
-      
-      // その他（学校・体・人など、プリント2以降の漢字も網羅）
-      { id: '52', char: '王', reading: 'おう', genre: 'その他' }, { id: '53', char: '音', reading: 'おと', genre: 'その他' },
-      { id: '54', char: '学', reading: 'まなぶ', genre: 'その他' }, { id: '55', char: '気', reading: 'き', genre: 'その他' },
-      { id: '56', char: '休', reading: 'やすむ', genre: 'その他' }, { id: '57', char: '玉', reading: 'たま', genre: 'その他' },
-      { id: '58', char: '犬', reading: 'いぬ', genre: 'その他' }, { id: '59', char: '見', reading: 'みる', genre: 'その他' },
-      { id: '60', char: '口', reading: 'くち', genre: 'その他' }, { id: '61', char: '校', reading: 'こうこう', genre: 'その他' },
-      { id: '62', char: '子', reading: 'こ', genre: 'その他' }, { id: '63', char: '糸', reading: 'いと', genre: 'その他' },
-      { id: '64', char: '字', reading: 'じ', genre: 'その他' }, { id: '65', char: '耳', reading: 'みみ', genre: 'その他' },
-      { id: '66', char: '車', reading: 'くるま', genre: 'その他' }, { id: '67', char: '手', reading: 'て', genre: 'その他' },
-      { id: '68', char: '女', reading: 'おんな', genre: 'その他' }, { id: '69', char: '人', reading: 'ひと', genre: 'その他' },
-      { id: '70', char: '正', reading: 'ただしい', genre: 'その他' }, { id: '71', char: '生', reading: 'いきる', genre: 'その他' },
-      { id: '72', char: '夕', reading: 'ゆうがた', genre: 'その他' }, { id: '73', char: '村', reading: 'むら', genre: 'その他' },
-      { id: '74', char: '男', reading: 'おとこ', genre: 'その他' }, { id: '75', char: '町', reading: 'まち', genre: 'その他' },
-      { id: '76', char: '年', reading: 'とし', genre: 'その他' }, { id: '77', char: '文', reading: 'ぶん', genre: 'その他' },
-      { id: '78', char: '本', reading: 'ほん', genre: 'その他' }, { id: '79', char: '名', reading: 'なまえ', genre: 'off' }, // 名、目は以下
-      { id: '80', char: '目', reading: 'め', genre: 'その他' }, { id: '81', char: '力', reading: 'ちから', genre: 'その他' }
-    ];
-
-    // 重複を綺麗に除いた全80文字のクリーンアップ配列を作成
-    const UNIQUE_KANJI_DATA = [];
-    const seenChars = new Set();
-    KANJI_DATA.forEach(item => {
-      if (!seenChars.has(item.char)) {
-        seenChars.add(item.char);
-        UNIQUE_KANJI_DATA.push(item);
-      }
-    });
-    
-    const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', 'その他'];
-    const MODES = ['trace','trace','trace','fade-on-touch','fade-on-touch','fade-on-touch','blank','blank','blank','blank'];
-    
-    let selectedIds = [];
-    let currentIndex = 0;
-    let cellStates = new Array(10).fill(false);
-    let currentTool = 'pen';
-
-    let tapCount = 0;
-    let tapTimer = null;
-    function handleTripleTap(buttonElement, callback) {
-      tapCount++;
-      if(tapCount === 1) buttonElement.style.backgroundColor = '#fed7aa';
-      if(tapCount === 2) buttonElement.style.backgroundColor = '#ffedd5';
-
-      clearTimeout(tapTimer);
-      if (tapCount === 3) {
-        tapCount = 0;
-        buttonElement.style.backgroundColor = '';
-        callback();
-      } else {
-        tapTimer = setTimeout(() => {
-          tapCount = 0;
-          buttonElement.style.backgroundColor = '';
-        }, 500);
-      }
-    }
-
-    function setTool(tool) {
-      currentTool = tool;
-      document.getElementById('tool-pen').classList.toggle('active', tool === 'pen');
-      document.getElementById('tool-eraser').classList.toggle('active', tool === 'eraser');
-    }
-
-    function changeScreen(phase) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-      if(phase === 'HOME') document.getElementById('screen-home').classList.add('active');
-      if(phase === 'KANJI_LIST') {
-        document.getElementById('screen-list').classList.add('active');
-        renderKanjiList();
-      }
-      if(phase === 'PRACTICE') document.getElementById('screen-practice').classList.add('active');
-    }
-
-    function goToTransit() {
-      if ('speechSynthesis' in window) window.speechSynthesis.speak(new SpeechSynthesisUtterance(''));
-      changeScreen('KANJI_LIST');
-    }
-
-    // ジャンルごとに見出しをつけてレンダリングする関数
-    function renderKanjiList() {
-      const box = document.getElementById('kanji-selector-box');
-      box.innerHTML = '';
-      
-      GENRES.forEach(genre => {
-        const genreKanji = UNIQUE_KANJI_DATA.filter(k => k.genre === genre);
-        if (genreKanji.length === 0) return;
-        
-        // ジャンルのコンテナ
-        const section = document.createElement('div');
-        section.className = 'genre-section';
-        
-        // ジャンルのタイトル見出し
-        const title = document.createElement('h3');
-        title.className = 'genre-title';
-        title.innerText = genre;
-        section.appendChild(title);
-        
-        // 5列のグリッド
-        const grid = document.createElement('div');
-        grid.className = 'grid-kanji';
-        
-        genreKanji.forEach(k => {
-          const btn = document.createElement('button');
-          btn.className = 'btn-kanji' + (selectedIds.includes(k.id) ? ' selected' : '');
-          btn.innerText = k.char;
-          btn.onclick = () => {
-            if(selectedIds.includes(k.id)) selectedIds = selectedIds.filter(id => id !== k.id);
-            else selectedIds.push(k.id);
-            renderKanjiList();
-            
-            const startBtn = document.getElementById('btn-start-practice');
-            if(selectedIds.length > 0) {
-              startBtn.disabled = false;
-              startBtn.style.backgroundColor = '#10b981';
-              startBtn.style.color = 'white';
-              startBtn.style.cursor = 'pointer';
-              startBtn.innerText = `れんしゅうを はじめる (${selectedIds.length}文字)`;
-            } else {
-              startBtn.disabled = true;
-              startBtn.style.backgroundColor = '#cbd5e1';
-              startBtn.style.color = '#64748b';
-              startBtn.style.cursor = 'not-allowed';
-              startBtn.innerText = 'れんしゅうを はじめる (0文字)';
-            }
-          };
-          grid.appendChild(btn);
-        });
-        
-        section.appendChild(grid);
-        box.appendChild(section);
-      });
-    }
-
-    function startPractice() {
-      currentIndex = 0;
-      setTool('pen');
-      initPracticePage();
-      changeScreen('PRACTICE');
-    }
-
-    function speak(text) {
-      if ('speechSynthesis' in window) {
-        window.speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
-        u.lang = 'ja-JP'; u.rate = 0.8;
-        window.speechSynthesis.speak(u);
-      }
-    }
-
-    function initPracticePage() {
-      cellStates.fill(false);
-      document.getElementById('btn-next').style.display = 'none';
-      document.getElementById('text-guide').style.display = 'block';
-
-      const currentKanji = UNIQUE_KANJI_DATA.find(k => k.id === selectedIds[currentIndex]);
-      document.getElementById('practice-model').innerText = currentKanji.char;
-      document.getElementById('practice-reading').innerText = currentKanji.reading;
-      document.getElementById('practice-progress').innerText = `進捗: ${currentIndex + 1} / ${selectedIds.length}`;
-      
-      speak(currentKanji.reading);
-
-      const container = document.getElementById('cells-container');
-      container.innerHTML = '';
-      
-      MODES.forEach((mode, idx) => {
-        const cell = document.createElement('div');
-        cell.className = 'cell-container';
-        cell.innerHTML = `
-          <span class="cell-num">${idx + 1}</span>
-          <button class="btn-speak" onclick="speak('${currentKanji.reading}')">🔊</button>
-          <div class="canvas-area">
-            <div class="canvas-bg" id="bg-${idx}" style="display: ${mode === 'blank' ? 'none' : 'flex'}">${currentKanji.char}</div>
-            <div class="guide-h"></div><div class="guide-v"></div>
-            <canvas id="canvas-${idx}"></canvas>
-          </div>
-        `;
-        container.appendChild(cell);
-        setupCanvas(idx, mode);
-      });
-    }
-
-    function setupCanvas(idx, mode) {
-      const canvas = document.getElementById(`canvas-${idx}`);
-      canvas.width = 120; canvas.height = 120;
-      const ctx = canvas.getContext('2d');
-      ctx.lineCap = 'round'; ctx.lineJoin = 'round';
-
-      let drawing = false;
-
-      function getPos(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - rect.top };
-      }
-
-      function start(e) {
-        e.preventDefault();
-        if(currentTool === 'pen' && mode === 'fade-on-touch') {
-          document.getElementById(`bg-${idx}`).style.display = 'none';
-        }
-        drawing = true;
-        const pos = getPos(e);
-        ctx.beginPath(); 
-        ctx.moveTo(pos.x, pos.y);
-
-        if (currentTool === 'eraser') {
-          ctx.globalCompositeOperation = 'destination-out';
-          ctx.lineWidth = 16;
-        } else {
-          ctx.globalCompositeOperation = 'source-over';
-          ctx.strokeStyle = '#333333';
-          ctx.lineWidth = 5;
-        }
-      }
-
-      function move(e) {
-        if(!drawing) return;
-        e.preventDefault();
-        const pos = getPos(e);
-        ctx.lineTo(pos.x, pos.y); 
-        ctx.stroke();
-      }
-
-      function end() {
-        if(!drawing) return;
-        drawing = false; 
-        ctx.closePath();
-        checkWritten(idx);
-      }
-
-      canvas.addEventListener('mousedown', start); canvas.addEventListener('mousemove', move);
-      canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
-      canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', move);
-      canvas.addEventListener('touchend', end);
-    }
-
-    function checkWritten(idx) {
-      const canvas = document.getElementById(`canvas-${idx}`);
-      const ctx = canvas.getContext('2d');
-      const imgData = ctx.getImageData(0, 0, 120, 120).data;
-      let count = 0;
-      for (let i = 3; i < imgData.length; i += 4) { if (imgData[i] > 0) count++; }
-      cellStates[idx] = count > 50;
-      updateFooter();
-    }
-
-    function updateFooter() {
-      const allDone = cellStates.every(s => s === true);
-      const nextBtn = document.getElementById('btn-next');
-      const guideText = document.getElementById('text-guide');
-      
-      if(allDone) {
-        nextBtn.innerText = currentIndex === selectedIds.length - 1 ? 'できた！！おわる 🎉' : 'つぎの かんじへ ➡️';
-        nextBtn.style.display = 'block';
-        guideText.style.display = 'none';
-      } else {
-        nextBtn.style.display = 'none';
-        guideText.style.display = 'block';
-      }
-    }
-
-    function nextKanji() {
-      if (currentIndex < selectedIds.length - 1) {
-        currentIndex++;
-        initPracticePage();
-      } else {
-        alert('ぜんぶクリア！よくがんばったね！💮');
-        selectedIds = [];
-        changeScreen('KANJI_LIST');
-      }
-    }
-  </script>
-</body>
-</html>
+      { id: '39', char: '中', reading: 'なか', genre: '向き' }, { id: '40', char
