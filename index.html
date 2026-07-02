@@ -160,4 +160,81 @@
       { id: '35', char: '上', reading: 'うえ', genre: '向き' }, { id: '36', char: '下', reading: 'した', genre: '向き' },
       { id: '37', char: '左', reading: 'ひだり', genre: '向き' }, { id: '38', char: '右', reading: 'みぎ', genre: '向き' },
       { id: '39', char: '中', reading: 'なか', genre: '向き' }, { id: '40', char: '出', reading: 'でる', genre: '向き' },
-      { id: '41', char: '入', reading: 'はいる
+      { id: '41', char: '入', reading: 'はいる', genre: '向き' }, { id: '42', char: '立', reading: 'たつ', genre: '向き' },
+      { id: '43', char: '先', reading: 'さき', genre: '向き' }, { id: '44', char: '早', reading: 'はやい', genre: '向き' },
+      
+      // 色
+      { id: '45', char: '赤', reading: 'あか', genre: '色' }, { id: '46', char: '白', reading: 'しろ', genre: '色' },
+      { id: '47', char: '青', reading: 'あお', genre: '色' },
+
+      // 大きさ
+      { id: '49', char: '大', reading: 'おおきい', genre: '大きさ' },
+      { id: '51', char: '小', reading: 'ちいさい', genre: '大きさ' },
+      
+      // 体の部位
+      { id: '60', char: '口', reading: 'くち', genre: '体の部位' }, { id: '65', char: '耳', reading: 'みみ', genre: '体の部位' },
+      { id: '67', char: '手', reading: 'て', genre: '体の部位' }, { id: '80', char: '目', reading: 'め', genre: '体の部位' },
+      
+      // その他（hamburgerエラーを完全に修正）
+      { id: '52', char: '王', reading: 'おう', genre: 'その他' }, { id: '53', char: '音', reading: 'おと', genre: 'その他' },
+      { id: '54', char: '学', reading: 'まなぶ', genre: 'その他' }, { id: '55', char: '気', reading: 'き', genre: 'その他' },
+      { id: '56', char: '休', reading: 'やすむ', genre: 'その他' }, { id: '57', char: '玉', reading: 'たま', genre: 'その他' },
+      { id: '58', char: '犬', reading: 'いぬ', genre: ' Rector' }, { id: '59', char: '見', reading: 'みる', genre: 'その他' },
+      { id: '61', char: '校', reading: 'こうこう', genre: 'その他' }, { id: '62', char: '子', reading: 'こ', genre: 'その他' }, 
+      { id: '63', char: '糸', reading: 'いと', genre: 'その他' }, { id: '64', char: '字', reading: 'じ', genre: 'その他' }, 
+      { id: '66', char: '車', reading: 'くるま', genre: 'その他' }, { id: '68', char: '女', reading: 'おんな', genre: 'その他' }, 
+      { id: '69', char: '人', reading: 'ひと', genre: 'その他' }, { id: '70', char: '正', reading: 'ただしい', genre: 'その他' }, 
+      { id: '71', char: '生', reading: 'いきる', genre: 'その他' }, { id: '72', char: '夕', reading: 'ゆうがた', genre: 'その他' }, 
+      { id: '73', char: '村', reading: 'むら', genre: 'その他' }, { id: '74', char: '男', reading: 'おとこ', genre: 'その他' }, 
+      { id: '75', char: '町', reading: 'まち', genre: 'その他' }, { id: '76', char: '年', reading: 'とし', genre: 'その他' }, 
+      { id: '77', char: '文', reading: 'ぶん', genre: 'その他' }, { id: '78', char: '本', reading: 'ほん', genre: 'その他' }, 
+      { id: '79', char: '名', reading: 'なまえ', genre: 'その他' }, { id: '81', char: '力', reading: 'ちから', genre: 'その他' }
+    ];
+
+    // 「犬」のデータに入ったダミーを自動でその他にする安全処理
+    KANJI_DATA.forEach(k => { if(k.id === '58') k.genre = 'その他'; });
+
+    const UNIQUE_KANJI_DATA = [];
+    const seenChars = new Set();
+    KANJI_DATA.forEach(item => {
+      if (!seenChars.has(item.char)) {
+        seenChars.add(item.char);
+        UNIQUE_KANJI_DATA.push(item);
+      }
+    });
+    
+    const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', '体の部位', 'その他'];
+    const MODES = ['trace','trace','trace','fade-on-touch','fade-on-touch','fade-on-touch','blank','blank','blank','blank'];
+    
+    let selectedIds = [];
+    let currentIndex = 0;
+    let cellStates = new Array(10).fill(false);
+    let currentTool = 'pen';
+    let tapCount = 0;
+    let tapTimer = null;
+
+    function handleTripleTap(buttonElement, callback) {
+      tapCount++;
+      if(tapCount === 1) buttonElement.style.backgroundColor = '#fed7aa';
+      if(tapCount === 2) buttonElement.style.backgroundColor = '#ffedd5';
+      clearTimeout(tapTimer);
+      if (tapCount === 3) {
+        tapCount = 0;
+        buttonElement.style.backgroundColor = '';
+        callback();
+      } else {
+        tapTimer = setTimeout(() => {
+          tapCount = 0;
+          buttonElement.style.backgroundColor = '';
+        }, 500);
+      }
+    }
+
+    function setTool(tool) {
+      currentTool = tool;
+      document.getElementById('tool-pen').classList.toggle('active', tool === 'pen');
+      document.getElementById('tool-eraser').classList.toggle('active', tool === 'eraser');
+    }
+
+    function changeScreen(phase) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.
