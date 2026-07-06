@@ -116,7 +116,7 @@
       <button class="btn-main" onclick="goToTransit()">スタート 🚀</button>
       <div class="home-sub-row">
         <button class="btn-sub btn-home-history" onclick="openHistoryGallery()">りれき 📷</button>
-        <button class="btn-sub btn-home-settings">せってい ⚙️</button>
+        <button class="btn-sub btn-home-settings" onclick="alert('せってい画面は、これからつくるよ！⚙️')">せってい ⚙️</button>
       </div>
     </div>
   </div>
@@ -245,9 +245,9 @@
       }
     });
     
-    const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', '体の部位', 'その他'];
+    const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', '体の部位', 'other'];
     const MODES = ['trace','trace','fade-on-touch','fade-on-touch','blank','blank'];
-    const MAX_HISTORY_COUNT = 50; // 最大保存枚数ルール
+    const MAX_HISTORY_COUNT = 50;
     
     let selectedIds = [];
     let currentIndex = 0;
@@ -258,7 +258,6 @@
     let isSpeakLocked = false;
     let strokeHistories = [[], [], [], [], [], []];
     
-    // 【LocalStorage対応】起動時にブラウザから保存済みの履歴を読み込む
     let savedHistories = [];
     try {
       const localData = localStorage.getItem('kanji_practice_history');
@@ -269,12 +268,11 @@
       console.error('履歴の読み込みに失敗しました:', e);
     }
 
-    // 履歴をLocalStorageへ保存する共通処理
     function saveToLocalStorage() {
       try {
         localStorage.setItem('kanji_practice_history', JSON.stringify(savedHistories));
       } catch(e) {
-        console.error('容量制限などの理由で保存できませんでした:', e);
+        console.error('保存できませんでした:', e);
       }
     }
 
@@ -322,7 +320,8 @@
       box.innerHTML = '';
       
       GENRES.forEach(genre => {
-        const genreKanji = UNIQUE_KANJI_DATA.filter(k => k.genre === genre);
+        const displayGenreName = genre === 'other' ? 'その他' : genre;
+        const genreKanji = UNIQUE_KANJI_DATA.filter(k => k.genre === displayGenreName);
         if (genreKanji.length === 0) return;
         
         const section = document.createElement('div');
@@ -330,7 +329,7 @@
         
         const title = document.createElement('h3');
         title.className = 'genre-title';
-        title.innerText = genre;
+        title.innerText = displayGenreName;
         section.appendChild(title);
         
         const grid = document.createElement('div');
@@ -638,7 +637,6 @@
       const dateString = `${now.getMonth() + 1}月${now.getDate()}日`;
       const timeString = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
 
-      // 新しい履歴を先頭に追加
       savedHistories.unshift({
         char: currentKanji.char,
         reading: currentKanji.reading,
@@ -647,14 +645,11 @@
         timeLabel: timeString
       });
 
-      // 【新ルール】もし50枚を超えたら、一番古い履歴（配列の最後尾）を削除して上限を保つ
       if (savedHistories.length > MAX_HISTORY_COUNT) {
         savedHistories = savedHistories.slice(0, MAX_HISTORY_COUNT);
       }
 
-      // ローカルストレージにデータを永久保存
       saveToLocalStorage();
-
       nextKanji();
     }
 
@@ -699,7 +694,7 @@
     function clearHistoryGallery() {
       if (confirm('これまで練習したりれきをぜんぶ消してもいいですか？')) {
         savedHistories = [];
-        saveToLocalStorage(); // ローカルストレージも空にする
+        saveToLocalStorage();
         openHistoryGallery();
       }
     }
