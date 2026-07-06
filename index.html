@@ -54,28 +54,28 @@
     .top-panel { height: 22vh; display: flex; background-color: white; border-radius: 16px; padding: 10px 20px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); justify-content: space-around; align-items: center; border: 1px solid #fef3c7; box-sizing: border-box; }
     .model-text { font-size: 85px; font-family: serif; font-weight: bold; color: #1e293b; line-height: 1; }
     
-    /* お手本横の大きな音声グループ */
-    .info-container { display: flex; align-items: center; gap: 15px; }
+    /* 【変更】コンパクトになった音声＆読み方グループ */
+    .info-container { display: flex; align-items: center; gap: 10px; }
     .info-box { background-color: #fef3c7; padding: 8px 15px; border-radius: 12px; border: 1px solid #fde68a; width: 140px; text-align: center; }
     .info-reading { font-size: 18px; font-weight: bold; color: #334155; background-color: white; margin: 4px 0 0 0; padding: 3px; border-radius: 6px; }
-    .btn-speak-master { background-color: #e0f2fe; border: 2px solid #bae6fd; border-radius: 12px; padding: 10px 15px; font-size: 16px; font-weight: bold; color: #0369a1; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 2px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+    
+    /* コンパクトになった「よみかた」音声ボタン */
+    .btn-speak-master { background-color: #e0f2fe; border: 2px solid #bae6fd; border-radius: 12px; padding: 12px 16px; font-size: 15px; font-weight: bold; color: #0369a1; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; line-height: 1.2; }
     .btn-speak-master:disabled { opacity: 0.5; cursor: not-allowed; background-color: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; }
 
     .tool-box { display: flex; flex-direction: column; gap: 8px; }
     .btn-tool { padding: 8px 16px; font-size: 14px; font-weight: bold; border: 2px solid #cbd5e1; background-color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; }
     .btn-tool.active { background-color: #3b82f6; color: white; border-color: #2563eb; }
 
-    /* 下部パネル：6回用に3列×2段のグリッドへ変更 */
+    /* 下部パネル：6回用（3列×2段） */
     .bottom-panel { height: 60vh; background-color: rgba(241,245,249,0.6); border-radius: 16px; padding: 12px; border: 1px solid #e2e8f0; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
     .grid-cells { display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(2, 1fr); gap: 12px; width: 100%; height: 100%; }
     
-    /* マス目のコンテナ（縦横を広げて大きく見せる） */
     .cell-container { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; background-color: #fff; position: relative; box-sizing: border-box; height: 100%; }
     .cell-num { position: absolute; top: 6px; left: 10px; font-size: 13px; font-weight: bold; color: #94a3b8; z-index: 20; }
     
-    /* キャンバス領域をマスの大きさに合わせて拡大 */
     .canvas-area { position: relative; width: 160px; height: 160px; border: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 8px; overflow: hidden; }
-    .canvas-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 110px; color: #e2e8f0; font-family: serif; pointer-events: none; }
+    .canvas-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 110px; color: #e2e8f0; font-family: serif; pointer-events: none; transition: opacity 0.1s ease; }
     .guide-h { position: absolute; top: 50%; left: 0; width: 100%; border-top: 1px dashed #e2e8f0; pointer-events: none; }
     .guide-v { position: absolute; left: 50%; top: 0; height: 100%; border-left: 1px dashed #e2e8f0; pointer-events: none; }
     canvas { position: absolute; inset: 0; z-index: 10; cursor: crosshair; touch-action: none; }
@@ -127,7 +127,7 @@
           <p id="practice-progress" style="font-size:11px; color:#64748b; margin:4px 0 0 0;">進捗: 1 / 1</p>
         </div>
         <button id="btn-master-speak" class="btn-speak-master" onclick="triggerMasterSpeak()">
-          <span>🔊こえを</span><span>きく</span>
+          よみかた<br>🔊
         </button>
       </div>
 
@@ -137,7 +137,7 @@
       </div>
     </div>
 
-    <div class="bottom-panel">
+    <div class="bottom-panel" id="practice-bg-panel">
       <div class="grid-cells" id="cells-container"></div>
     </div>
 
@@ -149,7 +149,6 @@
 
   <script>
     const KANJI_DATA = [
-      // 数・曜日
       { id: '1', char: '一', reading: 'いち', genre: '数・曜日' }, { id: '2', char: '二', reading: 'に', genre: '数・曜日' },
       { id: '3', char: '三', reading: 'さん', genre: '数・曜日' }, { id: '4', char: '四', reading: 'よん', genre: '数・曜日' },
       { id: '5', char: '五', reading: 'ご', genre: '数・曜日' }, { id: '6', char: '六', reading: 'ろく', genre: '数・曜日' },
@@ -160,8 +159,6 @@
       { id: '15', char: '月', reading: 'つき', genre: '数・曜日' }, { id: '16', char: '火', reading: 'ひ', genre: '数・曜日' },
       { id: '17', char: '水', reading: 'みず', genre: '数・曜日' }, { id: '18', char: '木', reading: 'き', genre: '数・曜日' },
       { id: '19', char: '金', reading: 'かね', genre: '数・曜日' }, { id: '20', char: '土', reading: 'つち', genre: '数・曜日' },
-      
-      // 自然
       { id: '21', char: '山', reading: 'やま', genre: '自然' }, { id: '22', char: '川', reading: 'かわ', genre: '自然' },
       { id: '23', char: '石', reading: 'いし', genre: '自然' }, { id: '24', char: '竹', reading: 'たけ', genre: '自然' },
       { id: '25', char: '田', reading: 'たんぼ', genre: '自然' }, { id: '26', char: '花', reading: 'はな', genre: '自然' },
@@ -169,40 +166,29 @@
       { id: '29', char: '森', reading: 'もり', genre: '自然' }, { id: '30', char: '天', reading: 'てんき', genre: '自然' },
       { id: '31', char: '空', reading: 'そら', genre: '自然' }, { id: '32', char: '雨', reading: 'あめ', genre: '自然' },
       { id: '33', char: '虫', reading: 'むし', genre: '自然' }, { id: '34', char: '貝', reading: 'かい', genre: '自然' },
-      
-      // 向き
       { id: '35', char: '上', reading: 'うえ', genre: '向き' }, { id: '36', char: '下', reading: 'した', genre: '向き' },
       { id: '37', char: '左', reading: 'ひだり', genre: '向き' }, { id: '38', char: '右', reading: 'みぎ', genre: '向き' },
       { id: '39', char: '中', reading: 'なか', genre: '向き' }, { id: '40', char: '出', reading: 'でる', genre: '向き' },
       { id: '41', char: '入', reading: 'はいる', genre: '向き' }, { id: '42', char: '立', reading: 'たつ', genre: '向き' },
       { id: '43', char: '先', reading: 'さき', genre: '向き' }, { id: '44', char: '早', reading: 'はやい', genre: '向き' },
-      
-      // 色
       { id: '45', char: '赤', reading: 'あか', genre: '色' }, { id: '46', char: '白', reading: 'しろ', genre: '色' },
-      { id: '47', char: '青', reading: 'あお', genre: '色' },
-
-      // 大きさ
-      { id: '49', char: '大', reading: 'おおきい', genre: '大きさ' },
-      { id: '51', char: '小', reading: 'ちいさい', genre: '大きさ' },
-      
-      // 体の部位
-      { id: '60', char: '口', reading: 'くち', genre: '体の部位' }, { id: '65', char: '耳', reading: 'みみ', genre: '体の部位' },
-      { id: '67', char: '手', reading: 'て', genre: '体の部位' }, { id: '80', char: '目', reading: 'め', genre: '体の部位' },
-      
-      // その他
-      { id: '52', char: '王', reading: 'おう', genre: 'その他' }, { id: '53', char: '音', reading: 'おと', genre: 'その他' },
-      { id: '54', char: '学', reading: 'まなぶ', genre: 'その他' }, { id: '55', char: '気', reading: 'き', genre: 'その他' }, 
-      { id: '56', char: '休', reading: 'やすむ', genre: 'その他' }, { id: '57', char: '玉', reading: 'たま', genre: 'その他' },
-      { id: '58', char: '犬', reading: 'いぬ', genre: 'その他' }, { id: '59', char: '見', reading: 'みる', genre: 'その他' },
-      { id: '61', char: '校', reading: 'こうこう', genre: 'その他' }, { id: '62', char: '子', reading: 'こ', genre: 'その他' }, 
-      { id: '63', char: '糸', reading: 'いと', genre: 'その他' }, { id: '64', char: '字', reading: 'じ', genre: 'その他' }, 
-      { id: '66', char: '車', reading: 'くるま', genre: 'その他' }, { id: '68', char: '女', reading: 'おんな', genre: 'その他' }, 
-      { id: '69', char: '人', reading: 'ひと', genre: 'その他' }, { id: '70', char: '正', reading: 'ただしい', genre: 'その他' }, 
-      { id: '71', char: '生', reading: 'いきる', genre: 'その他' }, { id: '72', char: '夕', reading: 'ゆうがた', genre: 'その他' }, 
-      { id: '73', char: '村', reading: 'むら', genre: 'その他' }, { id: '74', char: '男', reading: 'おとこ', genre: 'その他' }, 
-      { id: '75', char: '町', reading: 'まち', genre: 'その他' }, { id: '76', char: '年', reading: 'とし', genre: 'その他' }, 
-      { id: '77', char: '文', reading: 'ぶん', genre: 'その他' }, { id: '78', char: '本', reading: 'ほん', genre: 'その他' }, 
-      { id: '79', char: '名', reading: 'なまえ', genre: 'その他' }, { id: '81', char: '力', reading: 'ちから', genre: 'その他' }
+      { id: '47', char: '青', reading: 'あお', genre: '色' }, { id: '49', char: '大', reading: 'おおきい', genre: '大きさ' },
+      { id: '51', char: '小', reading: 'ちいさい', genre: '大きさ' }, { id: '60', char: '口', reading: 'くち', genre: '体の部位' },
+      { id: '65', char: '耳', reading: 'みみ', genre: '体の部位' }, { id: '67', char: '手', reading: 'て', genre: '体の部位' },
+      { id: '80', char: '目', reading: 'め', genre: '体の部位' }, { id: '52', char: '王', reading: 'おう', genre: 'その他' },
+      { id: '53', char: '音', reading: 'おと', genre: 'その他' }, { id: '54', char: '学', reading: 'まなぶ', genre: 'その他' },
+      { id: '55', char: '気', reading: 'き', genre: 'その他' }, { id: '56', char: '休', reading: 'やすむ', genre: 'その他' },
+      { id: '57', char: '玉', reading: 'たま', genre: 'その他' }, { id: '58', char: '犬', reading: 'いぬ', genre: 'その他' },
+      { id: '59', char: '見', reading: 'みる', genre: 'その他' }, { id: '61', char: '校', reading: 'こうこう', genre: 'その他' },
+      { id: '62', char: '子', reading: 'こ', genre: 'その他' }, { id: '63', char: '糸', reading: 'いと', genre: 'その他' },
+      { id: '64', char: '字', reading: 'じ', genre: 'その他' }, { id: '66', char: '車', reading: 'くるま', genre: 'その他' },
+      { id: '68', char: '女', reading: 'おんな', genre: 'その他' }, { id: '69', char: '人', reading: 'ひと', genre: 'その他' },
+      { id: '70', char: '正', reading: 'ただしい', genre: 'その他' }, { id: '71', char: '生', reading: 'いきる', genre: 'その他' },
+      { id: '72', char: '夕', reading: 'ゆうがた', genre: 'その他' }, { id: '73', char: '村', reading: 'むら', genre: 'その他' },
+      { id: '74', char: '男', reading: 'おとこ', genre: 'その他' }, { id: '75', char: '町', reading: 'まち', genre: 'その他' },
+      { id: '76', char: '年', reading: 'とし', genre: 'その他' }, { id: '77', char: '文', reading: 'ぶん', genre: 'その他' },
+      { id: '78', char: '本', reading: 'ほん', genre: 'その他' }, { id: '79', char: '名', reading: 'なまえ', genre: 'その他' },
+      { id: '81', char: '力', reading: 'ちから', genre: 'その他' }
     ];
 
     const UNIQUE_KANJI_DATA = [];
@@ -215,17 +201,18 @@
     });
     
     const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', '体の部位', 'その他'];
-    
-    // 【変更】 練習回数を 10回 -> 6回 に調整（なぞり2、消える2、じぶんで2）
     const MODES = ['trace','trace','fade-on-touch','fade-on-touch','blank','blank'];
     
     let selectedIds = [];
     let currentIndex = 0;
-    let cellStates = new Array(6).fill(false); // 6要素に初期化
+    let cellStates = new Array(6).fill(false);
     let currentTool = 'pen';
     let tapCount = 0;
     let tapTimer = null;
-    let isSpeakLocked = false; // 音声連打防止のフラグ
+    let isSpeakLocked = false;
+
+    // 各マスの筆跡を画（Stroke）ごとに記憶する配列
+    let strokeHistories = [[], [], [], [], [], []];
 
     function handleTripleTap(buttonElement, callback) {
       tapCount++;
@@ -347,21 +334,17 @@
       }
     }
 
-    // 【新機能】 お手本横ボタン用の、2秒間インターバル付き音声再生関数
     function triggerMasterSpeak() {
       if (isSpeakLocked) return;
-      
       const currentKanji = UNIQUE_KANJI_DATA.find(k => k.id === selectedIds[currentIndex]);
       if (!currentKanji) return;
 
       speak(currentKanji.reading);
 
-      // ボタンをロック
       isSpeakLocked = true;
       const speakBtn = document.getElementById('btn-master-speak');
       if (speakBtn) speakBtn.disabled = true;
 
-      // 2秒（2000ミリ秒）後にロック解除
       setTimeout(() => {
         isSpeakLocked = false;
         if (speakBtn) speakBtn.disabled = false;
@@ -369,7 +352,8 @@
     }
 
     function initPracticePage() {
-      cellStates = new Array(6).fill(false); // 6回用にリセット
+      cellStates = new Array(6).fill(false);
+      strokeHistories = [[], [], [], [], [], []]; // 履歴リセット
       document.getElementById('btn-next').style.display = 'none';
       document.getElementById('text-guide').style.display = 'block';
 
@@ -378,13 +362,11 @@
       document.getElementById('practice-reading').innerText = currentKanji.reading;
       document.getElementById('practice-progress').innerText = `進捗: ${currentIndex + 1} / ${selectedIds.length}`;
       
-      // 最初の一回は自動で読み上げ
       speak(currentKanji.reading);
 
       const container = document.getElementById('cells-container');
       container.innerHTML = '';
       
-      // 【変更】各マスのスピーカーを削除し、マスを大きく表示
       MODES.forEach((mode, idx) => {
         const cell = document.createElement('div');
         cell.className = 'cell-container';
@@ -403,12 +385,12 @@
 
     function setupCanvas(idx, mode) {
       const canvas = document.getElementById(`canvas-${idx}`);
-      // 大きくなったセルに合わせてキャンバスサイズを160x160に拡大
       canvas.width = 160; canvas.height = 160;
       const ctx = canvas.getContext('2d');
       ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
       let drawing = false;
+      let currentStroke = []; // 今書いている1画の座標追跡
 
       function getPos(e) {
         const rect = canvas.getBoundingClientRect();
@@ -419,22 +401,33 @@
 
       function start(e) {
         e.preventDefault();
+        // 【新変更】触っているときだけ消去（opacity 0）にする
         if(currentTool === 'pen' && mode === 'fade-on-touch') {
-          document.getElementById(`bg-${idx}`).style.display = 'none';
+          document.getElementById(`bg-${idx}`).style.opacity = '0';
         }
         drawing = true;
         const pos = getPos(e);
         ctx.beginPath(); 
         ctx.moveTo(pos.x, pos.y);
 
+        let lineWidth = 6;
+        let isEraser = false;
         if (currentTool === 'eraser') {
           ctx.globalCompositeOperation = 'destination-out';
-          ctx.lineWidth = 20; // マス拡大に合わせて消しゴムを少し太く
+          lineWidth = 20;
+          isEraser = true;
         } else {
           ctx.globalCompositeOperation = 'source-over';
           ctx.strokeStyle = '#333333';
-          ctx.lineWidth = 6; // マス拡大に合わせてペンを少し太く
+          lineWidth = 6;
         }
+        ctx.lineWidth = lineWidth;
+
+        currentStroke = {
+          isEraser: isEraser,
+          lineWidth: lineWidth,
+          points: [pos]
+        };
       }
 
       function move(e) {
@@ -443,12 +436,22 @@
         const pos = getPos(e);
         ctx.lineTo(pos.x, pos.y); 
         ctx.stroke();
+        currentStroke.points.push(pos);
       }
 
       function end() {
         if(!drawing) return;
         drawing = false; 
         ctx.closePath();
+        
+        // 【新変更】指が離れたらなぞり線を戻す（opacity 1）
+        if(mode === 'fade-on-touch') {
+          document.getElementById(`bg-${idx}`).style.opacity = '1';
+        }
+
+        if(currentStroke.points.length > 0) {
+          strokeHistories[idx].push(currentStroke);
+        }
         checkWritten(idx);
       }
 
@@ -456,6 +459,32 @@
       canvas.addEventListener('mouseup', end); canvas.addEventListener('mouseleave', end);
       canvas.addEventListener('touchstart', start); canvas.addEventListener('touchmove', move);
       canvas.addEventListener('touchend', end);
+    }
+
+    // キャンバス履歴から再描画する共通関数
+    function redrawCanvas(idx) {
+      const canvas = document.getElementById(`canvas-${idx}`);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, 160, 160);
+
+      strokeHistories[idx].forEach(stroke => {
+        if (stroke.points.length === 0) return;
+        ctx.beginPath();
+        if (stroke.isEraser) {
+          ctx.globalCompositeOperation = 'destination-out';
+        } else {
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.strokeStyle = '#333333';
+        }
+        ctx.lineWidth = stroke.lineWidth;
+        ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+        for (let i = 1; i < stroke.points.length; i++) {
+          ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+        }
+        ctx.stroke();
+        ctx.closePath();
+      });
     }
 
     function checkWritten(idx) {
@@ -493,6 +522,58 @@
         changeScreen('KANJI_LIST');
       }
     }
+
+    // 【新機能】 1秒間の長押し判定と「1画もどす」システム
+    let longTapTimer = null;
+    const bgPanel = document.getElementById('practice-bg-panel');
+
+    function startLongTapCheck(e) {
+      // マス（canvas）やボタンの上の場合は無視して、背景部分のみに反応させる
+      if (e.target.tagName === 'CANVAS' || e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+        return;
+      }
+      
+      clearTimeout(longTapTimer);
+      longTapTimer = setTimeout(() => {
+        undoLastStrokeGlobal();
+      }, 1000); // 1秒（1000ミリ秒）
+    }
+
+    function cancelLongTapCheck() {
+      clearTimeout(longTapTimer);
+    }
+
+    // 画面全体で一番最後に書かれた「最新の1画」を探して消す処理
+    function undoLastStrokeGlobal() {
+      let targetCellIdx = -1;
+      let lastStrokeTime = -1;
+
+      // 現在、何かしら線が残っているマスがあるか探す
+      for (let i = 0; i < 6; i++) {
+        if (strokeHistories[i].length > 0) {
+          // すべてのマスの中で、一番「うしろ（最新）」にデータがあるマスを対象にする
+          targetCellIdx = i; // 簡易的に、書き込みがある最後のセルを優先
+        }
+      }
+
+      // もしどこかのマスに線があれば、1画消す
+      if (targetCellIdx !== -1) {
+        strokeHistories[targetCellIdx].pop(); // 最後の1画を削除
+        redrawCanvas(targetCellIdx);        // 再描画
+        checkWritten(targetCellIdx);        // マスが埋まってるか判定し直し
+        
+        // スマホなどの振動機能があればポンと通知（お好みで）
+        if (navigator.vibrate) navigator.vibrate(50);
+      }
+    }
+
+    // 背景パネルに長押しイベントを登録
+    bgPanel.addEventListener('mousedown', startLongTapCheck);
+    bgPanel.addEventListener('mouseup', cancelLongTapCheck);
+    bgPanel.addEventListener('mouseleave', cancelLongTapCheck);
+    bgPanel.addEventListener('touchstart', startLongTapCheck);
+    bgPanel.addEventListener('touchend', cancelLongTapCheck);
+
   </script>
 </body>
 </html>
