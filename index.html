@@ -32,6 +32,10 @@
     .btn-group { width: 240px; display: flex; flex-direction: column; gap: 15px; }
     .home-sub-row { display: flex; gap: 10px; width: 100%; }
     .home-sub-row button { flex: 1; }
+    
+    /* ホーム画面専用の個別ボタン色指定 */
+    .btn-home-history { background-color: #ef4444 !important; } /* 赤色に変身 */
+    .btn-home-settings { background-color: #3b82f6 !important; } /* 青色に変身 */
 
     /* ② 漢字選択画面 */
     #screen-list { max-width: 1100px; margin: 0 auto; height: 100vh; justify-content: space-between; padding-bottom: 10px; }
@@ -84,7 +88,7 @@
     #btn-next { width: 100%; max-width: 450px; background-color: #10b981; color: white; font-weight: bold; padding: 10px; border-radius: 30px; font-size: 20px; border: none; cursor: pointer; box-shadow: 0 10px 15px rgba(16,185,129,0.3); display: none; }
     #text-guide { font-size: 15px; color: #94a3b8; margin: 0; font-weight: bold; }
 
-    /* ④ りれき一覧画面 (崩れないよう横並び・縦中央を徹底修正) */
+    /* ④ りれき一覧画面 */
     #screen-history-gallery { max-width: 1100px; margin: 0 auto; height: 100vh; justify-content: space-between; padding-bottom: 10px; }
     .gallery-header { display: flex; align-items: center; justify-content: space-between; width: 100%; height: 12vh; gap: 10px; box-sizing: border-box; }
     .gallery-title { font-size: 22px; color: #b45309; font-weight: bold; margin: 0; text-align: center; }
@@ -111,8 +115,8 @@
     <div class="btn-group">
       <button class="btn-main" onclick="goToTransit()">スタート 🚀</button>
       <div class="home-sub-row">
-        <button class="btn-sub" onclick="openHistoryGallery()">りれき 📷</button>
-        <button class="btn-sub">せってい ⚙️</button>
+        <button class="btn-sub btn-home-history" onclick="openHistoryGallery()">りれき 📷</button>
+        <button class="btn-sub btn-home-settings()">せってい ⚙️</button>
       </div>
     </div>
   </div>
@@ -202,8 +206,8 @@
       { id: '19', char: '金', reading: 'かね', genre: '数・曜日' }, { id: '20', char: '土', reading: 'つち', genre: '数・曜日' },
       { id: '21', char: '山', reading: 'やま', genre: '自然' }, { id: '22', char: '川', reading: 'かわ', genre: '自然' },
       { id: '23', char: '石', reading: 'いし', genre: '自然' }, { id: '24', char: '竹', reading: 'たけ', genre: '自然' },
-      { id: '25', char: '田', reading: 'たんぼ', genre: '自然' }, { id: '26', char: '花', reading: 'はな', genre: '自然' },
-      { id: '27', char: '草', reading: 'くさ', genre: '自然' }, { id: '28', border: 'none', char: '林', reading: 'はやし', genre: '自然' },
+      { id: '25', char: '田', reading: 'たんぼ', genre: '自然' }, { id: '26', char: '花', reading: 'はna', genre: '自然' },
+      { id: '27', char: '草', reading: 'くさ', genre: '自然' }, { id: '28', char: '林', reading: 'はやし', genre: '自然' },
       { id: '29', char: '森', reading: 'もり', genre: '自然' }, { id: '30', char: '天', reading: 'てんき', genre: '自然' },
       { id: '31', char: '空', reading: 'そら', genre: '自然' }, { id: '32', char: '雨', reading: 'あめ', genre: '自然' },
       { id: '33', char: '虫', reading: 'むし', genre: '自然' }, { id: '34', char: '貝', reading: 'かい', genre: '自然' },
@@ -226,7 +230,7 @@
       { id: '68', char: '女', reading: 'おんな', genre: 'その他' }, { id: '69', char: '人', reading: 'ひと', genre: 'その他' },
       { id: '70', char: '正', reading: 'ただしい', genre: 'その他' }, { id: '71', char: '生', reading: 'いきる', genre: 'その他' },
       { id: '72', char: '夕', reading: 'ゆうがた', genre: 'その他' }, { id: '73', char: '村', reading: 'むら', genre: 'その他' },
-      { id: '74', char: '男', reading: 'おとco', genre: 'その他' }, { id: '75', char: '町', reading: 'まち', genre: 'その他' },
+      { id: '74', char: '男', reading: 'おとこ', genre: 'その他' }, { id: '75', char: '町', reading: 'まち', genre: 'その他' },
       { id: '76', char: '年', reading: 'とし', genre: 'その他' }, { id: '77', char: '文', reading: 'ぶん', genre: 'その他' },
       { id: '78', char: '本', reading: 'ほん', genre: 'その他' }, { id: '79', char: '名', reading: 'なまえ', genre: 'その他' },
       { id: '81', char: '力', reading: 'ちから', genre: 'その他' }
@@ -434,13 +438,6 @@
       let drawing = false;
       let currentStroke = [];
 
-      function getPos(e) {
-        const rect = canvas.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        return { x: clientX - rect.left, y: clientY - top };
-      }
-
       function start(e) {
         e.preventDefault();
         if(currentTool === 'pen' && mode === 'fade-on-touch') {
@@ -619,7 +616,6 @@
       const imgDataUrl = virtualCanvas.toDataURL('image/png');
       const now = new Date();
       
-      // 【新機能】「〇月〇日」の日付データも合わせて保存するように拡張！
       const dateString = `${now.getMonth() + 1}月${now.getDate()}日`;
       const timeString = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' });
 
@@ -664,7 +660,6 @@
         const itemDiv = document.createElement('div');
         itemDiv.className = 'gallery-item';
         itemDiv.onclick = () => openOverlay(item);
-        // ラベル部分に日付「〇月〇日」を表示させるようにアップデート
         itemDiv.innerHTML = `
           <img src="${item.imageSrc}" alt="${item.char}">
           <div class="gallery-item-label">${item.char}<br><span style="font-size:10px;color:#64748b;">${item.dateLabel} ${item.timeLabel}</span></div>
