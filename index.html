@@ -15,6 +15,8 @@
       overflow: hidden; 
       width: 100vw;
       height: 100vh;
+      /* 💡 【追加】iPad Safariなどで、下に引っ張ったときにページがリロードされるのを防ぎます */
+      overscroll-behavior: none; 
     }
     .screen { display: none; padding: 20px; box-sizing: border-box; width: 100vw; height: 100vh; }
     .active { display: flex; flex-direction: column; }
@@ -107,7 +109,7 @@
     .overlay-close { position: absolute; top: -20px; right: -20px; background-color: #ef4444; color: white; border: none; border-radius: 50%; width: 44px; height: 44px; font-size: 24px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3); display: flex; align-items: center; justify-content: center; }
     .overlay-label { margin-top: 12px; font-size: 20px; font-weight: bold; color: #1e293b; text-align: center; }
 
-    /* ⚙️ 設定ポップアップ用の独自スタイル */
+    /* ⚙️ 設定ポップアップ用のスタイル */
     .settings-box { width: 320px; padding: 10px 5px; text-align: center; }
     .settings-title { font-size: 22px; color: #b45309; font-weight: bold; margin: 0 0 20px 0; }
     .settings-row { margin-bottom: 25px; text-align: left; }
@@ -228,12 +230,12 @@
       { id: '1', char: '一', reading: 'いち', genre: '数・曜日' }, { id: '2', char: '二', reading: 'に', genre: '数・曜日' },
       { id: '3', char: '三', reading: 'さん', genre: '数・曜日' }, { id: '4', char: '四', reading: 'よん', genre: '数・曜日' },
       { id: '5', char: '五', reading: 'ご', genre: '数・曜日' }, { id: '6', char: '六', reading: 'ろく', genre: '数・曜日' },
-      { id: '7', char: '七', reading: 'なな', genre: '数・曜日' }, { id: '8', char: '八', reading: 'はち', genre: '数・曜日' },
+      { id: '7', char: '七', reading: 'なな', genre: 'なな', genre: '数・曜日' }, { id: '8', char: '八', reading: 'はち', genre: '数・曜日' },
       { id: '9', char: '九', reading: 'きゅう', genre: '数・曜日' }, { id: '10', char: '十', reading: 'じゅう', genre: '数・曜日' },
       { id: '11', char: '百', reading: 'ひゃく', genre: '数・曜日' }, { id: '12', char: '千', reading: 'せん', genre: '数・曜日' },
       { id: '13', char: '円', reading: 'えん', genre: '数・曜日' }, { id: '14', char: '日', reading: 'ひ', genre: '数・曜日' },
       { id: '15', char: '月', reading: 'つき', genre: '数・曜日' }, { id: '16', char: '火', reading: 'ひ', genre: '数・曜日' },
-      { id: '17', char: '水', reading: 'みず', genre: '数・曜日' }, { id: '18', char: '木', reading: '木', genre: '数・曜日' },
+      { id: '17', char: '水', reading: 'みず', genre: '数・曜日' }, { id: '18', char: '木', reading: 'かね', genre: '数・曜日' },
       { id: '19', char: '金', reading: 'かね', genre: '数・曜日' }, { id: '20', char: '土', reading: 'つち', genre: '数・曜日' },
       { id: '21', char: '山', reading: 'やま', genre: '自然' }, { id: '22', char: '川', reading: 'かわ', genre: '自然' },
       { id: '23', char: '石', reading: 'いし', genre: '自然' }, { id: '24', char: '竹', reading: 'たけ', genre: '自然' },
@@ -289,7 +291,6 @@
     let isSpeakLocked = false;
     let strokeHistories = [[], [], [], [], [], []];
     
-    // 【設定データ】ペンの太さを初期値 6 にセット
     let globalPenWidth = 6;
 
     let savedHistories = [];
@@ -310,9 +311,7 @@
       }
     }
 
-    /* ⚙️ 設定画面を開く・閉じる・プレビュー更新処理 */
     function openSettingsModal() {
-      // 現在のペンの太さをスライダーとプレビューに同期
       document.getElementById('pen-width-slider').value = globalPenWidth;
       updatePenWidthPreview(globalPenWidth);
       document.getElementById('settings-overlay').style.display = 'flex';
@@ -325,7 +324,6 @@
     function updatePenWidthPreview(val) {
       globalPenWidth = parseInt(val, 10);
       const circle = document.getElementById('pen-preview-circle');
-      // 例としての丸の大きさを変更
       circle.style.width = `${globalPenWidth}px`;
       circle.style.height = `${globalPenWidth}px`;
     }
@@ -524,11 +522,11 @@
         ctx.beginPath(); 
         ctx.moveTo(pos.x, pos.y);
 
-        let lineWidth = globalPenWidth; // 【アップデート】設定されたペンの太さを適用
+        let lineWidth = globalPenWidth; 
         let isEraser = false;
         if (currentTool === 'eraser') {
           ctx.globalCompositeOperation = 'destination-out';
-          lineWidth = 20; // 消しゴムは使いやすさ重視で20固定
+          lineWidth = 20; 
           isEraser = true;
         } else {
           ctx.globalCompositeOperation = 'source-over';
