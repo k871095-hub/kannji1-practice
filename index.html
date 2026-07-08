@@ -226,7 +226,7 @@
   </div>
 
   <script>
-    // 💡 【超重要】iPad Safari完全固定ガード（トリプルタップ干渉バグ対応版）
+    // 💡 iPad Safari完全固定ガード
     (function() {
       document.addEventListener('touchmove', function(e) {
         let isScrollableArea = e.target.closest('.kanji-scroll-box') || e.target.closest('.gallery-scroll');
@@ -245,7 +245,7 @@
       }, false);
     })();
 
-    // 💡 【訂正・2つ目の読み方対応版】漢字データ
+    // 💡 【修正・確定版】漢字データ
     const KANJI_DATA = [
       { id: '1', char: '一', reading: 'いち', reading2: 'ひと(つ)', genre: '数・曜日' }, 
       { id: '2', char: '二', reading: 'に', reading2: 'ふた(つ)', genre: '数・曜日' },
@@ -292,7 +292,7 @@
       { id: '43', char: '先', reading: 'さき', reading2: 'せん', genre: '向き' }, 
       { id: '44', char: '早', reading: 'はや(い)', reading2: 'そう', genre: '向き' },
       { id: '45', char: '赤', reading: 'あか', reading2: 'せき', genre: '色' }, 
-      { id: '46', char: '白', reading: 'しろ', reading2: 'はく', genre: '色' },
+      { id: '46', solid: '白', char: '白', reading: 'しろ', reading2: 'はく', genre: '色' },
       { id: '47', char: '青', reading: 'あお', reading2: 'せい', genre: '色' }, 
       { id: '49', char: '大', reading: 'おお(きい)', reading2: 'だい', genre: '大きさ' },
       { id: '51', char: '小', reading: 'ちい(さい)', reading2: 'しょう', genre: '大きさ' }, 
@@ -316,7 +316,7 @@
       { id: '68', char: '女', reading: 'おんな', reading2: 'じょ', genre: 'その他' }, 
       { id: '69', char: '人', reading: 'ひと', reading2: 'じん', genre: 'その他' },
       { id: '70', char: '正', reading: 'ただ(しい)', reading2: 'せい', genre: 'その他' }, 
-      { id: '71', char: '生', reading: 'い(きる)', reading2: 'せい', genre: 'その他' },
+      { id: '71', char: '生', reading: 'い(きる)', reading2: 'せい', genre: '中心' }, 
       { id: '72', char: '夕', reading: 'ゆうがた', reading2: 'せき', genre: 'その他' }, 
       { id: '73', char: '村', reading: 'むら', reading2: 'そん', genre: 'その他' },
       { id: '74', char: '男', reading: 'おとこ', reading2: 'だん', genre: 'その他' }, 
@@ -337,7 +337,7 @@
       }
     });
     
-    const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', '体の部位', 'other'];
+    const GENRES = ['数・曜日', '自然', '向き', '色', '大きさ', '体の部位', 'その他'];
     const MODES = ['trace','trace','fade-on-touch','fade-on-touch','blank','blank'];
     const MAX_HISTORY_COUNT = 50;
     
@@ -430,8 +430,7 @@
       box.innerHTML = '';
       
       GENRES.forEach(genre => {
-        const displayGenreName = genre === 'other' ? 'その他' : genre;
-        const genreKanji = UNIQUE_KANJI_DATA.filter(k => k.genre === displayGenreName);
+        const genreKanji = UNIQUE_KANJI_DATA.filter(k => k.genre === genre);
         if (genreKanji.length === 0) return;
         
         const section = document.createElement('div');
@@ -439,7 +438,7 @@
         
         const title = document.createElement('h3');
         title.className = 'genre-title';
-        title.innerText = displayGenreName;
+        title.innerText = genre;
         section.appendChild(title);
         
         const grid = document.createElement('div');
@@ -502,8 +501,8 @@
     function speak(text) {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        // 🔊 送り仮名のカッコ () を外して滑らかに読み上げるためのクリーニング
-        const cleanText = text.replace(/[\(\)]/g, "");
+        // 送り仮名のカッコ（全角・半角両方）を外して滑らかに読み上げる
+        const cleanText = text.replace(/[\(\)（）]/g, "");
         const u = new SpeechSynthesisUtterance(cleanText);
         u.lang = 'ja-JP'; u.rate = 0.8;
         window.speechSynthesis.speak(u);
@@ -515,7 +514,6 @@
       const currentKanji = UNIQUE_KANJI_DATA.find(k => k.id === selectedIds[currentIndex]);
       if (!currentKanji) return;
 
-      // 💡 2つ読み方がある場合は「、」で繋いで連続で読み上げるように改良
       let speakText = currentKanji.reading;
       if (currentKanji.reading2) {
         speakText += `、${currentKanji.reading2}`;
@@ -541,10 +539,8 @@
       const currentKanji = UNIQUE_KANJI_DATA.find(k => k.id === selectedIds[currentIndex]);
       document.getElementById('practice-model').innerText = currentKanji.char;
       
-      // 💡 1つ目の読み方をセット
       document.getElementById('practice-reading').innerText = currentKanji.reading;
       
-      // 💡 2つ目の読み方があるかどうかで表示をスイッチ
       const reading2Element = document.getElementById('practice-reading2');
       if (currentKanji.reading2) {
         reading2Element.innerText = currentKanji.reading2;
@@ -556,7 +552,6 @@
 
       document.getElementById('practice-progress').innerText = `進捗: ${currentIndex + 1} / ${selectedIds.length}`;
       
-      // 最初の読み上げも2つの読み方に対応
       let startSpeakText = currentKanji.reading;
       if (currentKanji.reading2) startSpeakText += `、${currentKanji.reading2}`;
       speak(startSpeakText);
@@ -628,7 +623,7 @@
         const rect = canvas.getBoundingClientRect();
         const clientX = e.touches ? e.touches[0].clientX : e.clientX;
         const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const pos = { x: clientX - rect.left, y: clientY - rect.top };
+        const pos = { x: clientX - rect.left, y: clientY - top };
         
         ctx.lineTo(pos.x, pos.y); 
         ctx.stroke();
