@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
   <title>かんじ れんしゅう あぷり</title>
   
-  <!-- 💡 教科書体に一番近いGoogleフォント「クレー」を読み込みます -->
+  <!-- クレー One（Klee One）フォントを読み込むためのリンクを追加 -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Klee+One:wght@400;600&display=swap" rel="stylesheet">
@@ -13,8 +13,8 @@
   <style>
     body { 
       margin: 0; 
-      /* 💡 読み込んだ Klee One と、Windows用のUDデジタル教科書体を優先指定しました */
-      font-family: 'Klee One', "UD デジタル 教科書体 N-R", "UD Digital Kyokashotai", "HG教科書体", sans-serif; 
+      /* デフォルトを Klee One に統一し、崩れを防ぐため sans-serif をフォールバックに指定 */
+      font-family: 'Klee One', sans-serif; 
       background-color: #fffbeb; 
       color: #334155; 
       user-select: none; 
@@ -27,11 +27,11 @@
     .screen { display: none; padding: 20px; box-sizing: border-box; width: 100vw; height: 100vh; }
     .active { display: flex; flex-direction: column; }
     
-    /* 共通ボタン */
-    .btn-main { background-color: #10b981; color: white; font-weight: bold; padding: 15px; border-radius: 16px; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 20px; touch-action: none; }
-    .btn-sub { background-color: #94a3b8; color: white; font-weight: bold; padding: 12px; border-radius: 16px; border: none; cursor: pointer; font-size: 16px; touch-action: none; }
-    .btn-triple-tap { background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; color: #64748b; text-align: center; touch-action: none; }
-    .btn-action { background-color: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; touch-action: none; }
+    /* 共通ボタン / touch-action: none でブラウザの標準タップ挙動を完全に制御 */
+    .btn-main { font-family: 'Klee One', sans-serif; background-color: #10b981; color: white; font-weight: bold; padding: 15px; border-radius: 16px; border: none; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1); font-size: 20px; touch-action: none; }
+    .btn-sub { font-family: 'Klee One', sans-serif; background-color: #94a3b8; color: white; font-weight: bold; padding: 12px; border-radius: 16px; border: none; cursor: pointer; font-size: 16px; touch-action: none; }
+    .btn-triple-tap { font-family: 'Klee One', sans-serif; background-color: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; color: #64748b; text-align: center; touch-action: none; }
+    .btn-action { font-family: 'Klee One', sans-serif; background-color: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: bold; cursor: pointer; font-size: 14px; touch-action: none; }
     .btn-action.clear { background-color: #ef4444; }
 
     /* ① ホーム画面 */
@@ -41,6 +41,7 @@
     .home-sub-row { display: flex; gap: 10px; width: 100%; }
     .home-sub-row button { flex: 1; }
     
+    /* ホーム画面専用の個別ボタン色指定 */
     .btn-home-history { background-color: #ef4444 !important; }
     .btn-home-settings { background-color: #3b82f6 !important; }
 
@@ -50,33 +51,34 @@
     .view-title { font-size: 22px; color: #b45309; margin: 0; text-align: center; font-weight: bold; }
     .header-tools { display: flex; gap: 8px; }
     
+    /* スクロール枠 */
     .kanji-scroll-box { height: 68vh; overflow-y: auto; background-color: white; border-radius: 16px; padding: 20px; border: 1px solid #e2e8f0; box-sizing: border-box; -webkit-overflow-scrolling: touch; }
     
+    /* ジャンルごとの見た目 */
     .genre-section { margin-bottom: 25px; }
     .genre-title { font-size: 18px; color: #b45309; margin: 0 0 10px 0; padding-left: 8px; border-left: 5px solid #fbbf24; font-weight: bold; }
     .grid-kanji { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
     
-    /* 💡 ボタンの漢字フォントも serif（明朝）から変更 */
-    .btn-kanji { height: 70px; font-weight: bold; border-radius: 12px; border: 3px solid #e2e8f0; background-color: white; cursor: pointer; font-size: 28px; touch-action: none; font-family: inherit; }
+    /* 漢字ボタンに Klee One を適用 */
+    .btn-kanji { font-family: 'Klee One', serif; height: 70px; font-weight: bold; border-radius: 12px; border: 3px solid #e2e8f0; background-color: white; cursor: pointer; font-size: 28px; touch-action: none; }
     .btn-kanji.selected { background-color: #fbbf24; border-color: #d97706; }
     .footer-list-area { height: 12vh; display: flex; align-items: center; justify-content: center; }
 
     /* ③ 練習画面 */
     #screen-practice { justify-content: flex-start; gap: 12px; padding: 15px; }
+    /* クレーフォントに合わせて高さやパディングのバランスを再調整 */
     .top-panel { height: 22vh; display: flex; background-color: white; border-radius: 16px; padding: 10px 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); justify-content: space-around; align-items: center; border: 1px solid #fef3c7; box-sizing: border-box; gap: 8px; }
-    
-    /* 💡 お手本の漢字フォントも明朝から変更 */
-    .model-text { font-size: 85px; font-weight: bold; color: #1e293b; line-height: 1; font-family: inherit; }
+    .model-text { font-size: 85px; font-family: 'Klee One', serif; font-weight: bold; color: #1e293b; line-height: 1; }
     
     .info-container { display: flex; align-items: center; gap: 10px; }
     .info-box { background-color: #fef3c7; padding: 6px 12px; border-radius: 12px; border: 1px solid #fde68a; min-width: 150px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
     .info-reading { font-size: 16px; font-weight: bold; color: #334155; background-color: white; margin: 3px 0 0 0; padding: 2px; border-radius: 6px; white-space: nowrap; }
     
-    .btn-speak-master { background-color: #e0f2fe; border: 2px solid #bae6fd; border-radius: 12px; padding: 12px 14px; font-size: 14px; font-weight: bold; color: #0369a1; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; line-height: 1.2; touch-action: none; }
+    .btn-speak-master { font-family: 'Klee One', sans-serif; background-color: #e0f2fe; border: 2px solid #bae6fd; border-radius: 12px; padding: 12px 14px; font-size: 14px; font-weight: bold; color: #0369a1; cursor: pointer; box-shadow: 0 2px 4px rgba(0,0,0,0.05); text-align: center; line-height: 1.2; touch-action: none; }
     .btn-speak-master:disabled { opacity: 0.5; cursor: not-allowed; background-color: #f1f5f9; border-color: #e2e8f0; color: #94a3b8; }
 
     .tool-box { display: flex; flex-direction: column; gap: 8px; }
-    .btn-tool { padding: 8px 16px; font-size: 14px; font-weight: bold; border: 2px solid #cbd5e1; background-color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; touch-action: none; }
+    .btn-tool { font-family: 'Klee One', sans-serif; padding: 8px 16px; font-size: 14px; font-weight: bold; border: 2px solid #cbd5e1; background-color: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 5px; touch-action: none; }
     .btn-tool.active { background-color: #3b82f6; color: white; border-color: #2563eb; }
 
     /* 下部パネル：6回用 */
@@ -86,15 +88,15 @@
     .cell-container { display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #cbd5e1; border-radius: 12px; background-color: #fff; position: relative; box-sizing: border-box; height: 100%; }
     .cell-num { position: absolute; top: 6px; left: 10px; font-size: 13px; font-weight: bold; color: #94a3b8; z-index: 20; }
     
-    /* 💡 マス目のうっすら見える背景漢字も明朝から変更 */
     .canvas-area { position: relative; width: 160px; height: 160px; border: 1px solid #e2e8f0; background-color: #f8fafc; border-radius: 8px; overflow: hidden; }
-    .canvas-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 110px; color: #e2e8f0; pointer-events: none; transition: opacity 0.1s ease; font-family: inherit; }
+    /* 薄いガイド漢字に Klee One を適用 */
+    .canvas-bg { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 110px; color: #e2e8f0; font-family: 'Klee One', serif; pointer-events: none; transition: opacity 0.1s ease; }
     .guide-h { position: absolute; top: 50%; left: 0; width: 100%; border-top: 1px dashed #e2e8f0; pointer-events: none; }
     .guide-v { position: absolute; left: 50%; top: 0; height: 100%; border-left: 1px dashed #e2e8f0; pointer-events: none; }
     canvas { position: absolute; inset: 0; z-index: 10; cursor: crosshair; touch-action: none; }
     
     .footer-area { height: 8vh; display: flex; align-items: center; justify-content: center; box-sizing: border-box; }
-    #btn-next { width: 100%; max-width: 450px; background-color: #10b981; color: white; font-weight: bold; padding: 10px; border-radius: 30px; font-size: 20px; border: none; cursor: pointer; box-shadow: 0 10px 15px rgba(16,185,129,0.3); display: none; touch-action: none; }
+    #btn-next { font-family: 'Klee One', sans-serif; width: 100%; max-width: 450px; background-color: #10b981; color: white; font-weight: bold; padding: 10px; border-radius: 30px; font-size: 20px; border: none; cursor: pointer; box-shadow: 0 10px 15px rgba(16,185,129,0.3); display: none; touch-action: none; }
     #text-guide { font-size: 15px; color: #94a3b8; margin: 0; font-weight: bold; }
 
     /* ④ りれき一覧画面 */
@@ -234,7 +236,7 @@
   </div>
 
   <script>
-    // iPad Safari完全固定ガード
+    // 💡 iPad Safari完全固定ガード
     (function() {
       document.addEventListener('touchmove', function(e) {
         let isScrollableArea = e.target.closest('.kanji-scroll-box') || e.target.closest('.gallery-scroll');
@@ -253,7 +255,7 @@
       }, false);
     })();
 
-    // 漢字データ
+    // 💡 【修正・確定版】漢字データ
     const KANJI_DATA = [
       { id: '1', char: '一', reading: 'いち', reading2: 'ひと(つ)', genre: '数・曜日' }, 
       { id: '2', char: '二', reading: 'に', reading2: 'ふた(つ)', genre: '数・曜日' },
@@ -329,11 +331,11 @@
       { id: '73', char: '村', reading: 'むら', reading2: 'そん', genre: 'その他' },
       { id: '74', char: '男', reading: 'おとこ', reading2: 'だん', genre: 'その他' }, 
       { id: '75', char: '町', reading: 'まち', reading2: 'ちょう', genre: 'その他' },
-      { id: '76', char: '年', reading: 'とし', reading2: 'ねn', reading2: 'ねん', genre: 'その他' }, 
+      { id: '76', char: '年', reading: 'とし', reading2: 'ねん', genre: 'その他' }, 
       { id: '77', char: '文', reading: 'ぶん', reading2: 'もん', genre: 'その他' },
       { id: '78', char: '本', reading: 'ほん', genre: 'その他' }, 
       { id: '79', char: '名', reading: 'な（まえ）', reading2: 'めい', genre: 'その他' },
-      { id: '81', char: '力', reading: 'ちから', reading2: 'りょく', genre: 'その他' }
+      { id: '81', char: '力', reading: 'ちしから', reading2: 'りょく', genre: 'その他' }
     ];
 
     const UNIQUE_KANJI_DATA = [];
@@ -719,11 +721,12 @@
       vCtx.fillRect(0, 0, 600, 450);
 
       vCtx.fillStyle = '#b45309';
-      vCtx.font = 'bold 28px sans-serif';
+      // キャンバス保存用のフォント名も Klee One に変更
+      vCtx.font = 'bold 28px "Klee One", sans-serif';
       vCtx.fillText(`「${currentKanji.char}」の れんしゅう`, 30, 45);
 
       vCtx.fillStyle = '#64748b';
-      vCtx.font = '16px sans-serif';
+      vCtx.font = '16px "Klee One", sans-serif';
       let historyReadingText = `よみかた: ${currentKanji.reading}`;
       if(currentKanji.reading2) historyReadingText += `, ${currentKanji.reading2}`;
       vCtx.fillText(historyReadingText, 320, 42);
@@ -745,11 +748,10 @@
           vCtx.strokeRect(x, y, 160, 160);
 
           vCtx.fillStyle = '#94a3b8';
-          vCtx.font = 'bold 14px sans-serif';
+          vCtx.font = 'bold 14px "Klee One", sans-serif';
           vCtx.fillText(i + 1, x + 8, y + 18);
 
           if (MODES[i] !== 'blank') {
-            /* 💡 履歴に保存する画像の漢字フォントも明朝からクレー（教科書体風）に変更 */
             vCtx.fillStyle = '#e2e8f0';
             vCtx.font = '110px "Klee One", serif';
             vCtx.textAlign = 'center';
